@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,8 +14,11 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import { Globe, Moon, Sun, Menu, X, ChevronRight } from "react-native-feather";
-import LoginPopup from "@/components/LoginPopup";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
+// Import the AppContext
+import { useAppContext } from "@/contexts/AppContext";
 
 // Define types for languages and translations
 type LanguageCode = "en" | "ar" | "fr";
@@ -26,15 +29,18 @@ type Translations = {
   login: string;
   signup: string;
   features: string;
-  feature1: string;
-  feature2: string;
-  feature3: string;
+  multilingualBibles?: string;
+  deepStudyTools?: string;
+  personalNotes?: string;
   language: string;
   theme: string;
   darkMode: string;
   lightMode: string;
   loginDescription?: string;
   settings: string;
+  bibleCollections?: string;
+  studyResources?: string;
+  communityLearning?: string;
 };
 
 type Language = {
@@ -49,24 +55,14 @@ const languages: Language[] = [
   { code: "fr", name: "Français" },
 ];
 
+// Define navigation type
+type RootStackParamList = {
+  books: undefined;
+};
+
 export default function MainScreen() {
-  const colorScheme = useColorScheme();
-  const [isDarkMode, setIsDarkMode] = useState(colorScheme === "dark");
-  const [currentLanguage, setCurrentLanguage] = useState<Language>(
-    languages[0]
-  );
-  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-
-  // Add state for login popup
-  const [isLoginPopupVisible, setIsLoginPopupVisible] = useState(false);
-
-  // Handler for successful login
-  const handleLoginSuccess = (phoneNumber: string) => {
-    // TODO: Implement your login logic here
-    console.log(`Logged in with phone number: ${phoneNumber}`);
-    setIsLoginPopupVisible(false);
-  };
+  // Use the AppContext
+  const { isDarkMode, currentLanguage } = useAppContext();
 
   // Carousel images with multilingual titles
   const carouselItems = [
@@ -170,61 +166,71 @@ export default function MainScreen() {
   // Translations (simplified example)
   const translations: Record<LanguageCode, Translations> = {
     en: {
-      welcome: "Welcome to Church News",
-      explore: "Explore the latest news and events from churches in Lebanon",
-      login: "Login",
-      signup: "Sign Up",
+      welcome: "Welcome to Bible Explorer",
+      explore: "Discover and read biblical texts from around the world",
+      login: "Explore Bibles",
+      signup: "Create Account",
       features: "App Features",
-      feature1: "Daily devotionals and inspirational content",
-      feature2: "Live streaming of church services",
-      feature3: "Community events and announcements",
+      multilingualBibles: "Multilingual Bibles",
+      deepStudyTools: "Deep Study Tools",
+      personalNotes: "Personal Notes",
       language: "Language",
       theme: "Theme",
       darkMode: "Dark Mode",
       lightMode: "Light Mode",
       loginDescription:
-        "To access more features and personalized content, please login",
+        "Access a comprehensive library of biblical texts and resources",
       settings: "Settings",
+      bibleCollections: "Bible Collections",
+      studyResources: "Study Resources",
+      communityLearning: "Community & Learning",
     },
     ar: {
-      welcome: "مرحبًا بكم في أخبار الكنيسة",
-      explore: "استكشف أحدث الأخبار والفعاليات من الكنائس في لبنان",
-      login: "تسجيل الدخول",
-      signup: "التسجيل",
+      welcome: "مرحبًا بكم في مستكشف الكتاب المقدس",
+      explore: "اكتشف والقراءة النصوص الكتابية من جميع أنحاء العالم",
+      login: "استكشف الكتب المقدسة",
+      signup: "إنشاء حساب",
       features: "مميزات التطبيق",
-      feature1: "تأملات يومية ومحتوى ملهم",
-      feature2: "بث مباشر لخدمات الكنيسة",
-      feature3: "فعاليات مجتمعية وإعلانات",
+      multilingualBibles: "ترجمات متعددة اللغات للكتاب المقدس",
+      deepStudyTools: "موارد دراسة كتابية معمقة",
+      personalNotes: "تعليقات شخصية للكتاب المقدس",
       language: "اللغة",
       theme: "المظهر",
       darkMode: "الوضع الداكن",
       lightMode: "الوضع الفاتح",
-      loginDescription:
-        "للوصول إلى المزيد من الميزات والمحتوى الشخصي، يرجى تسجيل الدخول",
+      loginDescription: "الوصول إلى مكتبة شاملة من النصوص والموارد الكتابية",
       settings: "الإعدادات",
+      bibleCollections: "مجموعات الكتاب المقدس",
+      studyResources: "موارد دراسة الكتاب",
+      communityLearning: "مجتمع وتعليم",
     },
     fr: {
-      welcome: "Bienvenue aux Nouvelles de l'Église",
-      explore:
-        "Explorez les dernières nouvelles et événements des églises au Liban",
-      login: "Connexion",
-      signup: "S'inscrire",
+      welcome: "Bienvenue sur Explorateur de Bibles",
+      explore: "Découvrez et lisez des textes bibliques du monde entier",
+      login: "Explorer les Bibles",
+      signup: "Créer un compte",
       features: "Fonctionnalités de l'Application",
-      feature1: "Dévotions quotidiennes et contenu inspirant",
-      feature2: "Diffusion en direct des services religieux",
-      feature3: "Événements communautaires et annonces",
+      multilingualBibles: "Traductions bibliques multilingues",
+      deepStudyTools: "Ressources d'étude biblique approfondies",
+      personalNotes: "Notes personnelles",
       language: "Langue",
       theme: "Thème",
       darkMode: "Mode Sombre",
       lightMode: "Mode Clair",
       loginDescription:
-        "Pour accéder à plus de fonctionnalités et de contenu personnalisé, veuillez vous connecter",
+        "Accédez à une bibliothèque complète de textes et ressources bibliques",
       settings: "Paramètres",
+      bibleCollections: "Collections de Bibles",
+      studyResources: "Ressources d'Étude",
+      communityLearning: "Communauté & Éducation",
     },
   };
 
   // Get current translations
   const t = translations[currentLanguage.code];
+
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
     <SafeAreaView
@@ -242,279 +248,8 @@ export default function MainScreen() {
         translucent={true}
       />
 
-      {/* Header with menu button */}
-      <View
-        style={[
-          styles.header,
-          {
-            flexDirection:
-              currentLanguage.code === "ar" ? "row-reverse" : "row",
-          },
-        ]}
-      >
-        <TouchableOpacity
-          onPress={() => setShowMenu(!showMenu)}
-          style={[
-            styles.menuButton,
-            {
-              zIndex: 10,
-              // Adjust positioning for Arabic
-              ...(currentLanguage.code === "ar" && {
-                position: "absolute",
-                right: 16,
-              }),
-            },
-          ]}
-        >
-          {showMenu ? <X stroke={theme.text} /> : <Menu stroke={theme.text} />}
-        </TouchableOpacity>
-        <View style={styles.headerLogoContainer}>
-          <Image
-            source={require("@/assets/images/Kanisati_logo.png")}
-            style={styles.headerLogo}
-            resizeMode="contain"
-          />
-        </View>
-        {/* Empty view to balance layout */}
-        <View style={{ width: 50 }} />
-      </View>
-
-      {/* Side menu */}
-      {showMenu && (
-        <View
-          style={[
-            styles.sideMenu,
-            {
-              backgroundColor: theme.card,
-              paddingTop:
-                Platform.OS === "android"
-                  ? (RNStatusBar.currentHeight || 0) + 20
-                  : 20,
-              // Adjust for Arabic language
-              ...(currentLanguage.code === "ar" && {
-                left: "auto",
-                right: 0,
-              }),
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.menuHeader,
-              {
-                flexDirection:
-                  currentLanguage.code === "ar" ? "row-reverse" : "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              },
-            ]}
-          >
-            <Text style={[styles.menuTitle, { color: theme.text }]}>
-              {t.settings}
-            </Text>
-            <TouchableOpacity onPress={() => setShowMenu(false)}>
-              <X stroke={theme.text} />
-            </TouchableOpacity>
-          </View>
-
-          {/* Language selector */}
-          <View style={styles.menuSection}>
-            <Text
-              style={[
-                styles.menuSectionTitle,
-                {
-                  color: theme.text,
-                  textAlign: currentLanguage.code === "ar" ? "right" : "left",
-                },
-              ]}
-            >
-              {t.language}
-            </Text>
-            <TouchableOpacity
-              style={[
-                styles.menuItem,
-                {
-                  backgroundColor: showLanguageMenu
-                    ? theme.secondary
-                    : "transparent",
-                  flexDirection:
-                    currentLanguage.code === "ar" ? "row-reverse" : "row",
-                },
-              ]}
-              onPress={() => setShowLanguageMenu(!showLanguageMenu)}
-            >
-              <View
-                style={[
-                  styles.menuItemContent,
-                  {
-                    flexDirection:
-                      currentLanguage.code === "ar" ? "row-reverse" : "row",
-                  },
-                ]}
-              >
-                <Globe stroke={theme.text} width={20} height={20} />
-                <Text
-                  style={[
-                    styles.menuItemText,
-                    {
-                      color: theme.text,
-                      marginLeft: currentLanguage.code === "ar" ? 0 : 10,
-                      marginRight: currentLanguage.code === "ar" ? 10 : 0,
-                    },
-                  ]}
-                >
-                  {currentLanguage.name}
-                </Text>
-              </View>
-              <ChevronRight
-                stroke={theme.text}
-                width={20}
-                height={20}
-                style={
-                  currentLanguage.code === "ar" && {
-                    transform: [{ rotate: "180deg" }],
-                  }
-                }
-              />
-            </TouchableOpacity>
-
-            {showLanguageMenu && (
-              <View
-                style={[
-                  styles.submenu,
-                  {
-                    backgroundColor: theme.card,
-                    alignItems:
-                      currentLanguage.code === "ar" ? "flex-end" : "flex-start",
-                  },
-                ]}
-              >
-                {languages.map((lang) => (
-                  <TouchableOpacity
-                    key={lang.code}
-                    style={[
-                      styles.submenuItem,
-                      currentLanguage.code === lang.code && {
-                        backgroundColor: theme.secondary,
-                      },
-                      {
-                        alignSelf:
-                          currentLanguage.code === "ar"
-                            ? "flex-end"
-                            : "flex-start",
-                        width: "100%",
-                      },
-                    ]}
-                    onPress={() => {
-                      setCurrentLanguage(lang);
-                      setShowLanguageMenu(false);
-                    }}
-                  >
-                    <Text
-                      style={[
-                        styles.submenuItemText,
-                        {
-                          color: theme.text,
-                          textAlign:
-                            currentLanguage.code === "ar" ? "right" : "left",
-                        },
-                      ]}
-                    >
-                      {lang.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
-
-          {/* Theme selector */}
-          <View style={styles.menuSection}>
-            <Text
-              style={[
-                styles.menuSectionTitle,
-                {
-                  color: theme.text,
-                  textAlign: currentLanguage.code === "ar" ? "right" : "left",
-                },
-              ]}
-            >
-              {t.theme}
-            </Text>
-            <TouchableOpacity
-              style={[
-                styles.menuItem,
-                {
-                  flexDirection:
-                    currentLanguage.code === "ar" ? "row-reverse" : "row",
-                },
-              ]}
-              onPress={() => setIsDarkMode(!isDarkMode)}
-            >
-              <View
-                style={[
-                  styles.menuItemContent,
-                  {
-                    flexDirection:
-                      currentLanguage.code === "ar" ? "row-reverse" : "row",
-                  },
-                ]}
-              >
-                {isDarkMode ? (
-                  <Sun stroke={theme.text} width={20} height={20} />
-                ) : (
-                  <Moon stroke={theme.text} width={20} height={20} />
-                )}
-                <Text
-                  style={[
-                    styles.menuItemText,
-                    {
-                      color: theme.text,
-                      marginLeft: currentLanguage.code === "ar" ? 0 : 10,
-                      marginRight: currentLanguage.code === "ar" ? 10 : 0,
-                    },
-                  ]}
-                >
-                  {isDarkMode ? t.lightMode : t.darkMode}
-                </Text>
-              </View>
-              <View
-                style={[
-                  styles.toggle,
-                  {
-                    backgroundColor: isDarkMode
-                      ? theme.primary
-                      : theme.secondary,
-                    flexDirection:
-                      currentLanguage.code === "ar" ? "row-reverse" : "row",
-                  },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.toggleDot,
-                    {
-                      backgroundColor: theme.background,
-                      transform: [
-                        {
-                          translateX: isDarkMode
-                            ? currentLanguage.code === "ar"
-                              ? -16
-                              : 16
-                            : 0,
-                        },
-                      ],
-                    },
-                  ]}
-                />
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Welcome section */}
+        {/* Carousel section */}
         <View style={styles.welcomeSection}>
           <View style={styles.carouselContainer} {...panResponder.panHandlers}>
             <Animated.Image
@@ -557,8 +292,7 @@ export default function MainScreen() {
         {/* Auth buttons */}
         <View style={styles.authButtonsContainer}>
           <Text style={[styles.loginDescriptionText, { color: theme.text }]}>
-            {t.loginDescription ||
-              "To access more features and personalized content, please login"}
+            {t.loginDescription}
           </Text>
           <TouchableOpacity
             style={[
@@ -567,66 +301,153 @@ export default function MainScreen() {
                 backgroundColor: theme.primary,
               },
             ]}
-            onPress={() => setIsLoginPopupVisible(true)}
+            onPress={() => navigation.navigate("books")}
           >
             <Text style={styles.buttonText}>{t.login}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Login Popup */}
-        <LoginPopup
-          visible={isLoginPopupVisible}
-          onClose={() => setIsLoginPopupVisible(false)}
-          onLoginSuccess={handleLoginSuccess}
-          theme={{
-            primary: theme.primary || "#dc2626",
-            text: theme.text,
-            card: theme.card,
-            background: theme.background,
-            border: theme.secondary,
-          }}
-        />
-
-        {/* Features section */}
-        <View style={styles.featuresSection}>
+        {/* New Bible Collections Section */}
+        <View style={styles.sectionContainer}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            {t.features}
+            {t.bibleCollections}
           </Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalScrollContainer}
+          >
+            {[
+              {
+                title: "King James Version",
+                description: "Classic English translation",
+                icon: "📖",
+              },
+              {
+                title: "Arabic Bible",
+                description: "Complete Arabic translation",
+                icon: "🕌",
+              },
+              {
+                title: "French Bible",
+                description: "Comprehensive French edition",
+                icon: "🇫🇷",
+              },
+              {
+                title: "Study Bible",
+                description: "In-depth scholarly annotations",
+                icon: "📚",
+              },
+            ].map((collection, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[styles.collectionCard, { backgroundColor: theme.card }]}
+                onPress={() => {
+                  /* Navigate to collection */
+                }}
+              >
+                <Text style={styles.collectionIcon}>{collection.icon}</Text>
+                <View>
+                  <Text style={[styles.collectionTitle, { color: theme.text }]}>
+                    {collection.title}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.collectionDescription,
+                      { color: theme.text },
+                    ]}
+                  >
+                    {collection.description}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
-          <View style={[styles.featureCard, { backgroundColor: theme.card }]}>
-            <Image
-              source={{ uri: "https://placeholder.svg?height=60&width=60" }}
-              style={styles.featureIcon}
-            />
-            <View style={styles.featureContent}>
-              <Text style={[styles.featureTitle, { color: theme.text }]}>
-                {t.feature1}
-              </Text>
-            </View>
+        {/* Bible Study Resources Section */}
+        <View style={styles.sectionContainer}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            {t.studyResources}
+          </Text>
+          <View style={styles.resourcesGrid}>
+            {[
+              {
+                title: "Commentaries",
+                description: "Expert biblical insights",
+                icon: "🔍",
+              },
+              {
+                title: "Concordance",
+                description: "Word studies and references",
+                icon: "📋",
+              },
+              {
+                title: "Historical Context",
+                description: "Cultural and historical background",
+                icon: "🏺",
+              },
+              {
+                title: "Original Languages",
+                description: "Hebrew and Greek texts",
+                icon: "🌐",
+              },
+            ].map((resource, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[styles.resourceCard, { backgroundColor: theme.card }]}
+                onPress={() => {
+                  /* Navigate to resource */
+                }}
+              >
+                <Text style={styles.resourceIcon}>{resource.icon}</Text>
+                <Text style={[styles.resourceTitle, { color: theme.text }]}>
+                  {resource.title}
+                </Text>
+                <Text
+                  style={[styles.resourceDescription, { color: theme.text }]}
+                >
+                  {resource.description}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
+        </View>
 
-          <View style={[styles.featureCard, { backgroundColor: theme.card }]}>
-            <Image
-              source={{ uri: "https://placeholder.svg?height=60&width=60" }}
-              style={styles.featureIcon}
-            />
-            <View style={styles.featureContent}>
-              <Text style={[styles.featureTitle, { color: theme.text }]}>
-                {t.feature2}
+        {/* Community and Learning Section */}
+        <View style={styles.sectionContainer}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            {t.communityLearning}
+          </Text>
+          <View
+            style={[styles.communitySection, { backgroundColor: theme.card }]}
+          >
+            <View style={styles.communityContent}>
+              <Text style={[styles.communityTitle, { color: theme.text }]}>
+                Join Bible Study Groups
               </Text>
-            </View>
-          </View>
-
-          <View style={[styles.featureCard, { backgroundColor: theme.card }]}>
-            <Image
-              source={{ uri: "https://placeholder.svg?height=60&width=60" }}
-              style={styles.featureIcon}
-            />
-            <View style={styles.featureContent}>
-              <Text style={[styles.featureTitle, { color: theme.text }]}>
-                {t.feature3}
+              <Text
+                style={[styles.communityDescription, { color: theme.text }]}
+              >
+                Connect with others, share insights, and grow together
               </Text>
+              <TouchableOpacity
+                style={[
+                  styles.communityButton,
+                  { backgroundColor: theme.primary },
+                ]}
+                onPress={() => {
+                  /* Navigate to community */
+                }}
+              >
+                <Text style={styles.communityButtonText}>Join Now</Text>
+              </TouchableOpacity>
             </View>
+            <Image
+              source={require("@/assets/images/LandingPage/Saint_jean_marc.jpg")}
+              style={styles.communityImage}
+              resizeMode="contain"
+            />
           </View>
         </View>
       </ScrollView>
@@ -638,32 +459,6 @@ export default function MainScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    height: 60,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.1)",
-  },
-  headerLogoContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerLogo: {
-    width: 130,
-    height: 130,
-  },
-  menuButton: {
-    padding: 8,
-  },
-  themeToggle: {
-    padding: 8,
   },
   scrollContent: {
     padding: 20,
@@ -722,97 +517,132 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 15,
   },
-  featureCard: {
+  featuresContainer: {
     flexDirection: "row",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    flexWrap: "wrap",
+  },
+  featureCardFull: {
+    width: "50%",
+    padding: 10,
+    borderBottomWidth: 2,
+    borderColor: "rgba(0,0,0,0.1)",
+  },
+  featureIconContainerFull: {
+    width: "100%",
+    height: 100,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    justifyContent: "center",
     alignItems: "center",
   },
-  featureIcon: {
-    width: 40,
-    height: 40,
-    marginRight: 15,
+  featureIconFull: {
+    fontSize: 24,
   },
-  featureContent: {
+  featureContentFull: {
     flex: 1,
+    padding: 10,
   },
-  featureTitle: {
+  featureTitleFull: {
     fontSize: 16,
-    fontWeight: "500",
-  },
-  sideMenu: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "80%",
-    height: "100%",
-    zIndex: 100,
-    padding: 20,
-    paddingTop:
-      Platform.OS === "android" ? (RNStatusBar.currentHeight || 0) + 20 : 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 1, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  menuHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  menuTitle: {
-    fontSize: 20,
     fontWeight: "bold",
+    marginBottom: 5,
   },
-  menuSection: {
-    marginBottom: 20,
+  featureDescriptionFull: {
+    fontSize: 14,
   },
-  menuSectionTitle: {
-    fontSize: 16,
-    fontWeight: "500",
+  featureBanner: {
+    width: "100%",
+    padding: 10,
+    borderRadius: 8,
+  },
+  featureIconBanner: {
+    fontSize: 24,
     marginBottom: 10,
   },
-  menuItem: {
+  featureContentBanner: {
+    flex: 1,
+  },
+  featureTitleBanner: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  featureDescriptionBanner: {
+    fontSize: 14,
+  },
+  sectionContainer: {
+    marginBottom: 30,
+  },
+  horizontalScrollContainer: {
+    padding: 10,
+  },
+  collectionCard: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+    marginRight: 10,
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  collectionIcon: {
+    fontSize: 24,
+    marginBottom: 10,
+  },
+  collectionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  collectionDescription: {
+    fontSize: 14,
+  },
+  resourcesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  resourceCard: {
+    width: "50%",
+    padding: 10,
+  },
+  resourceIcon: {
+    fontSize: 24,
+    marginBottom: 10,
+  },
+  resourceTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  resourceDescription: {
+    fontSize: 14,
+  },
+  communitySection: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+  },
+  communityContent: {
+    flex: 1,
+  },
+  communityTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  communityDescription: {
+    fontSize: 16,
+  },
+  communityButton: {
+    width: "100%",
     paddingVertical: 12,
-    paddingHorizontal: 10,
     borderRadius: 8,
-  },
-  menuItemContent: {
-    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
-  menuItemText: {
-    marginLeft: 10,
-    fontSize: 16,
+  communityButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
-  submenu: {
-    marginLeft: 20,
-    marginTop: 5,
-    borderRadius: 8,
-  },
-  submenuItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-  },
-  submenuItemText: {
-    fontSize: 16,
-  },
-  toggle: {
-    width: 40,
-    height: 24,
-    borderRadius: 12,
-    padding: 2,
-  },
-  toggleDot: {
-    width: 20,
-    height: 20,
+  communityImage: {
+    width: 150,
+    height: 150,
     borderRadius: 10,
   },
   indicators: {
