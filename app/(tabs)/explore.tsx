@@ -1,109 +1,310 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  StatusBar as RNStatusBar,
+  Platform,
+  TextInput,
+} from "react-native";
+import {
+  Search,
+  BookOpen,
+  Compass,
+  Heart,
+  Users,
+  Video,
+  Radio,
+} from "react-native-feather";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+// Import the AppContext
+import { useAppContext } from "@/contexts/AppContext";
 
-export default function TabTwoScreen() {
+// Static data for explore screen with more comprehensive sections
+const exploreCategories = [
+  {
+    id: "spiritual-growth",
+    title: "Spiritual Enrichment",
+    description: "Deepen your faith journey",
+    items: [
+      {
+        name: "Daily Devotionals",
+        icon: (color: string) => <Heart stroke={color} />,
+        description: "Inspirational daily readings",
+        iconColor: "#dc2626",
+        lightColor: "#FFF5F5",
+        darkColor: "#2C1F1F",
+      },
+      {
+        name: "Prayer Guides",
+        icon: (color: string) => <BookOpen stroke={color} />,
+        description: "Structured prayer techniques",
+        iconColor: "#10b981",
+        lightColor: "#F0FDF4",
+        darkColor: "#1F2C25",
+      },
+    ],
+  },
+  {
+    id: "learning",
+    title: "Biblical Learning",
+    description: "Expand your biblical knowledge",
+    items: [
+      {
+        name: "Bible Study Resources",
+        icon: (color: string) => <Video stroke={color} />,
+        description: "In-depth theological insights",
+        iconColor: "#8b5cf6",
+        lightColor: "#EFF6FF",
+        darkColor: "#1F2C3C",
+      },
+      {
+        name: "Online Courses",
+        icon: (color: string) => <Radio stroke={color} />,
+        description: "Structured biblical education",
+        iconColor: "#f59e0b",
+        lightColor: "#F5F3FF",
+        darkColor: "#2C2C1F",
+      },
+    ],
+  },
+  {
+    id: "community",
+    title: "Community Connections",
+    description: "Connect with fellow believers",
+    items: [
+      {
+        name: "Local Church Finder",
+        icon: (color: string) => <Users stroke={color} />,
+        description: "Discover nearby worship communities",
+        iconColor: "#f59e0b",
+        lightColor: "#FFFBEB",
+        darkColor: "#2C2C1F",
+      },
+      {
+        name: "Global Missions",
+        icon: (color: string) => <Compass stroke={color} />,
+        description: "Explore missionary opportunities",
+        iconColor: "#22c55e",
+        lightColor: "#F0FDF4",
+        darkColor: "#1F2C25",
+      },
+    ],
+  },
+];
+
+export default function ExploreScreen() {
+  // Use the AppContext
+  const { isDarkMode, currentLanguage } = useAppContext();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Theme colors with enhanced dark mode support
+  const theme = {
+    background: isDarkMode ? "#121212" : "#ffffff",
+    text: isDarkMode ? "#ffffff" : "#121212",
+    card: isDarkMode ? "#1e1e1e" : "#f5f5f5",
+    primary: "#dc2626", // Tailwind red-600
+    secondary: isDarkMode ? "#333333" : "#e2e8f0",
+    accent: "#f59e0b",
+    searchBackground: isDarkMode ? "#2c2c2c" : "#f1f5f9",
+    border: isDarkMode ? "#333333" : "#e2e8f0",
+  };
+
+  // Filter categories based on search query
+  const filteredCategories = exploreCategories
+    .map((category) => ({
+      ...category,
+      items: category.items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    }))
+    .filter((category) => category.items.length > 0);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <SafeAreaView
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.background,
+          paddingTop: Platform.OS === "android" ? RNStatusBar.currentHeight : 0,
+        },
+      ]}
+    >
+      <RNStatusBar
+        barStyle={isDarkMode ? "light-content" : "dark-content"}
+        backgroundColor={theme.background}
+        translucent={true}
+      />
+
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Search stroke={theme.text} style={styles.searchIcon} opacity={0.7} />
+        <TextInput
+          style={[
+            styles.searchInput,
+            {
+              backgroundColor: theme.searchBackground,
+              color: theme.text,
+              borderColor: theme.border,
+            },
+          ]}
+          placeholder="Search resources..."
+          placeholderTextColor={theme.text}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      </View>
+
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.background }]}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {filteredCategories.map((category) => (
+          <View
+            key={category.id}
+            style={[
+              styles.categoryContainer,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.border,
+              },
+            ]}
+          >
+            <Text style={[styles.categoryTitle, { color: theme.text }]}>
+              {category.title}
+            </Text>
+            <Text style={[styles.categoryDescription, { color: theme.text }]}>
+              {category.description}
+            </Text>
+
+            {category.items.map((item) => (
+              <TouchableOpacity
+                key={item.name}
+                style={[
+                  styles.itemContainer,
+                  {
+                    backgroundColor: isDarkMode
+                      ? item.darkColor
+                      : item.lightColor,
+                    borderColor: theme.border,
+                  },
+                ]}
+              >
+                <View style={styles.itemIconContainer}>
+                  {item.icon(isDarkMode ? theme.text : item.iconColor)}
+                </View>
+                <View style={styles.itemContent}>
+                  <Text style={[styles.itemTitle, { color: theme.text }]}>
+                    {item.name}
+                  </Text>
+                  <Text style={[styles.itemDescription, { color: theme.text }]}>
+                    {item.description}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+
+        {/* No results message */}
+        {filteredCategories.length === 0 && (
+          <View style={styles.noResultsContainer}>
+            <Text style={[styles.noResultsText, { color: theme.text }]}>
+              No resources found
+            </Text>
+            <Text style={[styles.noResultsSubtext, { color: theme.text }]}>
+              Try a different search term
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  searchIcon: {
+    position: "absolute",
+    left: 30,
+    zIndex: 1,
+  },
+  searchInput: {
+    flex: 1,
+    paddingLeft: 40,
+    paddingRight: 15,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 1,
+  },
+  scrollContent: {
+    padding: 20,
+  },
+  categoryContainer: {
+    marginBottom: 20,
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  categoryDescription: {
+    fontSize: 16,
+    marginBottom: 15,
+  },
+  itemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  itemIconContainer: {
+    marginRight: 15,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  itemContent: {
+    flex: 1,
+  },
+  itemTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  itemDescription: {
+    fontSize: 14,
+  },
+  noResultsContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 50,
+  },
+  noResultsText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  noResultsSubtext: {
+    fontSize: 16,
   },
 });
