@@ -13,6 +13,7 @@ import {
   Dimensions,
 } from "react-native";
 import { Book, Search, ChevronRight } from "react-native-feather";
+import { router } from "expo-router";
 
 // Import the AppContext
 import { useAppContext } from "@/contexts/AppContext";
@@ -460,7 +461,18 @@ export default function BooksScreen() {
         : [...prev, sectionId]
     );
   };
-
+  // Navigate to book reader screen
+  const openBookReader = (book: { name: string; chapters: number; icon: string }) => {
+    router.push({
+      pathname: '/book',
+      params: {
+        bookName: book.name.replace(/^\d+\.\s*/, ""),
+        totalChapters: book.chapters,
+        icon: book.icon,
+      }
+    });
+  };
+  
   // Render book item
   const renderBookItem = ({
     item: book,
