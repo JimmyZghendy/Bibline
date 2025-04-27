@@ -9,6 +9,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import BookReaderScreen from "@/components/BookReaderScreen";
@@ -34,6 +35,7 @@ export default function RootLayout() {
   }
 
   return (
+    <SafeAreaProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -41,5 +43,6 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

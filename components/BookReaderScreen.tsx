@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 import {
   StyleSheet,
   View,
@@ -11,81 +11,83 @@ import {
   Dimensions,
   StatusBar as RNStatusBar,
   Platform,
-} from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, Search, Filter, Book } from 'react-native-feather';
+} from "react-native";
+import { useLocalSearchParams, router } from "expo-router";
+import { ChevronLeft, Search, Filter, Book } from "react-native-feather";
 
 // Import the AppContext
-import { useAppContext } from '@/contexts/AppContext';
+import { useAppContext } from "@/contexts/AppContext";
 
-// Example Bible content (you would replace this with actual content fetch)
-const generateChapterContent = (bookName: string, chapterNum: number) => {
-  return {
-    title: `${bookName} Chapter ${chapterNum}`,
-    verses: Array.from({ length: 30 }, (_, i) => ({
-      number: i + 1,
-      text: `This is verse ${i + 1} of chapter ${chapterNum} in the book of ${bookName}.`,
-    })),
-  };
-};
+// Import dummy Bible data
+import { getBookById, BibleBook, Chapter, Verse } from "@/data/bibleDummyData";
 
-export default function BookReaderScreen() {
+export default function BookReaderScreen({
+  bookId = "genesis",
+  icon = "📖",
+}: {
+  bookId?: string;
+  icon?: string;
+}) {
   const { isDarkMode } = useAppContext();
-  const params = useLocalSearchParams();
-  const { bookName = 'Unknown', totalChapters = '1', icon = '📖' } = params;
-  const totalChaptersStr = Array.isArray(totalChapters) ? totalChapters[0] : totalChapters;
-  const totalChaptersNum = parseInt(totalChaptersStr, 10);
-  const isValidTotalChapters = !isNaN(totalChaptersNum) && totalChaptersNum > 0;
-  
+
+  // Get book data
+  const bookData = getBookById(bookId);
+
+  console.log("BookReaderScreen - Input:", { bookId, icon });
+  console.log("BookReaderScreen - Book Data:", bookData);
+
   const [currentChapter, setCurrentChapter] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showChapterFilter, setShowChapterFilter] = useState(false);
-  
+
   // Theme colors
   const theme = {
-    background: isDarkMode ? '#121212' : '#ffffff',
-    text: isDarkMode ? '#ffffff' : '#121212',
-    card: isDarkMode ? '#1e1e1e' : '#f5f5f5',
-    primary: '#dc2626', // Tailwind red-600
-    secondary: isDarkMode ? '#333333' : '#e2e8f0',
-    accent: '#f59e0b',
-    searchBackground: isDarkMode ? '#2c2c2c' : '#f1f5f9',
+    background: isDarkMode ? "#121212" : "#ffffff",
+    text: isDarkMode ? "#ffffff" : "#121212",
+    card: isDarkMode ? "#1e1e1e" : "#f5f5f5",
+    primary: "#dc2626", // Tailwind red-600
+    secondary: isDarkMode ? "#333333" : "#e2e8f0",
+    accent: "#f59e0b",
+    searchBackground: isDarkMode ? "#2c2c2c" : "#f1f5f9",
   };
 
-  const bookNameStr = Array.isArray(bookName) ? bookName[0] : bookName;
+  // If no book found, return error view
+  if (!bookData) {
+    return (
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.background }]}
+      >
+        <Text style={[styles.noResultsText, { color: theme.text }]}>
+          Book not found
+        </Text>
+      </SafeAreaView>
+    );
+  }
 
-  // Get chapter content
-  const chapterContent = useMemo(() => {
-    return generateChapterContent(bookNameStr, currentChapter);
-  }, [bookNameStr, currentChapter]);
+  // Get current chapter content
+  const currentChapterContent = bookData.chapters.find(
+    (chapter) => chapter.number === currentChapter
+  );
 
   // Filter verses by search query
   const filteredVerses = useMemo(() => {
-    if (!searchQuery) return chapterContent.verses;
-    return chapterContent.verses.filter(verse => 
+    if (!searchQuery || !currentChapterContent)
+      return currentChapterContent?.verses || [];
+    return currentChapterContent.verses.filter((verse) =>
       verse.text.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [chapterContent.verses, searchQuery]);
+  }, [currentChapterContent?.verses, searchQuery]);
 
   // Navigate to chapter
-  const goToChapter = (chapterNum: string | number) => {
-    const num = parseInt(chapterNum as string, 10);
-    if (num >= 1 && num <= totalChaptersNum) {
-      setCurrentChapter(num);
+  const goToChapter = (chapterNum: number) => {
+    if (chapterNum >= 1 && chapterNum <= bookData.chapters.length) {
+      setCurrentChapter(chapterNum);
       setShowChapterFilter(false);
     }
   };
 
   // Generate chapter numbers for picker
-  const chapterNumbers = Array.from(
-    { length: totalChaptersNum },
-    (_, i) => i + 1
-  );
-
-  // Navigation
-  const goBack = () => {
-    router.back();
-  };
+  const chapterNumbers = bookData.chapters.map((chapter) => chapter.number);
 
   return (
     <SafeAreaView
@@ -93,35 +95,9 @@ export default function BookReaderScreen() {
         styles.container,
         {
           backgroundColor: theme.background,
-          paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight : 0,
         },
       ]}
     >
-      <RNStatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={theme.background}
-        translucent={true}
-      />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={goBack} style={styles.backButton}>
-          <ChevronLeft stroke={theme.text} width={24} height={24} />
-        </TouchableOpacity>
-        <View style={styles.titleContainer}>
-          <Text style={[styles.icon]}>{icon}</Text>
-          <Text style={[styles.title, { color: theme.text }]}>
-            {bookName}
-          </Text>
-        </View>
-        <TouchableOpacity 
-          style={styles.filterButton}
-          onPress={() => setShowChapterFilter(!showChapterFilter)}
-        >
-          <Filter stroke={theme.text} width={20} height={20} />
-        </TouchableOpacity>
-      </View>
-
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Search stroke={theme.text} style={styles.searchIcon} opacity={0.7} />
@@ -143,7 +119,12 @@ export default function BookReaderScreen() {
 
       {/* Chapter Filter */}
       {showChapterFilter && (
-        <View style={[styles.chapterFilterContainer, { backgroundColor: theme.card }]}>
+        <View
+          style={[
+            styles.chapterFilterContainer,
+            { backgroundColor: theme.card },
+          ]}
+        >
           <Text style={[styles.filterTitle, { color: theme.text }]}>
             Select Chapter
           </Text>
@@ -164,10 +145,7 @@ export default function BookReaderScreen() {
                   style={[
                     styles.chapterButtonText,
                     {
-                      color:
-                        currentChapter === num
-                          ? '#ffffff'
-                          : theme.text,
+                      color: currentChapter === num ? "#ffffff" : theme.text,
                     },
                   ]}
                 >
@@ -182,7 +160,7 @@ export default function BookReaderScreen() {
       {/* Chapter Title */}
       <View style={styles.chapterTitleContainer}>
         <Text style={[styles.chapterTitle, { color: theme.text }]}>
-          {chapterContent.title}
+          {bookData.name} Chapter {currentChapter}
         </Text>
       </View>
 
@@ -209,12 +187,15 @@ export default function BookReaderScreen() {
       </ScrollView>
 
       {/* Navigation Buttons */}
-      <View style={[styles.navigationContainer, { backgroundColor: theme.card }]}>
+      <View
+        style={[styles.navigationContainer, { backgroundColor: theme.card }]}
+      >
         <TouchableOpacity
           style={[
             styles.navButton,
             {
-              backgroundColor: currentChapter > 1 ? theme.primary : theme.secondary,
+              backgroundColor:
+                currentChapter > 1 ? theme.primary : theme.secondary,
               opacity: currentChapter > 1 ? 1 : 0.5,
             },
           ]}
@@ -224,34 +205,50 @@ export default function BookReaderScreen() {
           <Text
             style={[
               styles.navButtonText,
-              { color: currentChapter > 1 ? '#ffffff' : theme.text },
+              { color: currentChapter > 1 ? "#ffffff" : theme.text },
             ]}
           >
             Previous
           </Text>
         </TouchableOpacity>
-        
-        <View style={[styles.chapterIndicator, { backgroundColor: theme.secondary }]}>
+
+        <View
+          style={[
+            styles.chapterIndicator,
+            { backgroundColor: theme.secondary },
+          ]}
+        >
           <Text style={[styles.chapterIndicatorText, { color: theme.text }]}>
-            {currentChapter} / {totalChapters}
+            {currentChapter} / {bookData.chapters.length}
           </Text>
         </View>
-        
+
         <TouchableOpacity
           style={[
             styles.navButton,
             {
-              backgroundColor: currentChapter < totalChaptersNum ? theme.primary : theme.secondary,
-              opacity: currentChapter < totalChaptersNum ? 1 : 0.5,
+              backgroundColor:
+                currentChapter < bookData.chapters.length
+                  ? theme.primary
+                  : theme.secondary,
+              opacity: currentChapter < bookData.chapters.length ? 1 : 0.5,
             },
           ]}
-          onPress={() => currentChapter < totalChaptersNum && goToChapter(currentChapter + 1)}
-          disabled={currentChapter >= totalChaptersNum}
+          onPress={() =>
+            currentChapter < bookData.chapters.length &&
+            goToChapter(currentChapter + 1)
+          }
+          disabled={currentChapter >= bookData.chapters.length}
         >
           <Text
             style={[
               styles.navButtonText,
-              { color: currentChapter < totalChaptersNum ? '#ffffff' : theme.text },
+              {
+                color:
+                  currentChapter < bookData.chapters.length
+                    ? "#ffffff"
+                    : theme.text,
+              },
             ]}
           >
             Next
@@ -267,9 +264,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
@@ -277,8 +274,8 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   icon: {
     fontSize: 24,
@@ -286,19 +283,19 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   filterButton: {
     padding: 5,
   },
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
   searchIcon: {
-    position: 'absolute',
+    position: "absolute",
     left: 25,
     zIndex: 1,
   },
@@ -317,43 +314,43 @@ const styles = StyleSheet.create({
   },
   filterTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   chapterGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
   },
   chapterButton: {
     width: 50,
     height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     margin: 5,
     borderRadius: 5,
   },
   chapterButtonText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   chapterTitleContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: 15,
   },
   chapterTitle: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   contentContainer: {
     flex: 1,
     padding: 15,
   },
   verseContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 15,
   },
   verseNumber: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
     marginRight: 10,
     minWidth: 25,
@@ -364,21 +361,21 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   noResultsContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 20,
   },
   noResultsText: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   navigationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 15,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.1)',
+    borderTopColor: "rgba(0,0,0,0.1)",
   },
   navButton: {
     paddingVertical: 10,
@@ -386,13 +383,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   navButtonText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   chapterIndicator: {
     padding: 10,
     borderRadius: 5,
   },
   chapterIndicatorText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

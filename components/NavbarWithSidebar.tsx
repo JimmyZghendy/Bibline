@@ -10,6 +10,10 @@ import {
   Modal,
   Dimensions,
 } from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { Globe, Moon, Sun, Menu, X, ChevronRight } from "react-native-feather";
 
 // Import the AppContext
@@ -57,6 +61,9 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
   const { isDarkMode, currentLanguage, setIsDarkMode, setCurrentLanguage } =
     useAppContext();
 
+  // Get safe area insets
+  const insets = useSafeAreaInsets();
+
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -83,9 +90,21 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
 
   const screenWidth = Dimensions.get("window").width;
 
+  // Wrap content differently for web and mobile
+  const NavbarWrapper = Platform.OS === "web" ? View : SafeAreaView;
+  const navbarWrapperProps =
+    Platform.OS === "web"
+      ? {}
+      : {
+          style: {
+            backgroundColor: theme.background,
+            flex: 0,
+          },
+          edges: ["top"] as const,
+        };
+
   return (
-    <View>
-      {/* Header with menu button */}
+    <NavbarWrapper {...navbarWrapperProps}>
       <View
         style={[
           styles.header,
@@ -93,6 +112,18 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
             backgroundColor: theme.background,
             flexDirection:
               currentLanguage.code === "ar" ? "row-reverse" : "row",
+            ...(Platform.OS === "web"
+              ? {
+                  height: 60,
+                  paddingTop: 0,
+                }
+              : {
+                  height: 60 + (RNStatusBar.currentHeight || 0),
+                  paddingTop:
+                    Platform.OS === "android"
+                      ? RNStatusBar.currentHeight || 0
+                      : 0,
+                }),
           },
         ]}
       >
@@ -373,7 +404,7 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
           </View>
         </View>
       </Modal>
-    </View>
+    </NavbarWrapper>
   );
 }
 
@@ -383,7 +414,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    height: 60,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0,0,0,0.1)",
   },

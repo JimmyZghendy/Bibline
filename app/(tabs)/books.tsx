@@ -462,17 +462,32 @@ export default function BooksScreen() {
     );
   };
   // Navigate to book reader screen
-  const openBookReader = (book: { name: string; chapters: number; icon: string }) => {
+  const openBookReader = (book: {
+    name: string;
+    chapters: number;
+    icon: string;
+  }) => {
+    // Extract book ID from the name (lowercase, remove numbers and spaces)
+    const bookId = book.name
+      .toLowerCase()
+      .replace(/^\d+\.\s*/, "") // Remove leading numbers and dot
+      .replace(/\s+/g, "");
+
+    console.log("Opening book:", {
+      name: book.name,
+      bookId: bookId,
+      icon: book.icon,
+    });
+
     router.push({
-      pathname: '/book',
+      pathname: "/book-reader",
       params: {
-        bookName: book.name.replace(/^\d+\.\s*/, ""),
-        totalChapters: book.chapters,
+        bookId: bookId,
         icon: book.icon,
-      }
+      },
     });
   };
-  
+
   // Render book item
   const renderBookItem = ({
     item: book,
@@ -492,6 +507,7 @@ export default function BooksScreen() {
           borderColor: theme.secondary,
         },
       ]}
+      onPress={() => openBookReader(book)}
     >
       <Text style={styles.bookIcon}>{book.icon}</Text>
       <Text style={[styles.bookTitle, { color: theme.text }]} numberOfLines={1}>

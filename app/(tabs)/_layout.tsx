@@ -45,17 +45,17 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
-            name="explore"
-            options={{
-              title: "Explore",
-              tabBarIcon: ({ color }) => <Compass color={color} />,
-            }}
-          />
-          <Tabs.Screen
             name="books"
             options={{
               title: "Books",
               tabBarIcon: ({ color }) => <BookOpen color={color} />,
+            }}
+          />
+          <Tabs.Screen
+            name="explore"
+            options={{
+              title: "Explore",
+              tabBarIcon: ({ color }) => <Compass color={color} />,
             }}
           />
         </Tabs>
