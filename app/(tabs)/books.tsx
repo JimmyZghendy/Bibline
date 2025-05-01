@@ -1011,7 +1011,7 @@ export default function BooksScreen() {
         books: books.map((book, index) => ({
           name: `${index + 1}. ${book.name}`,
           chapters: book.chapters.length,
-          description: bookT.descriptions[book.name] || "", // Use your translations
+          description: (bookT.descriptions as Record<string, string>)[book.name] || "",
           id: book.id,
           icon: getIconForBook(book.id),
         }))
@@ -1062,6 +1062,7 @@ export default function BooksScreen() {
       chapters: number;
       description: string;
       icon: string;
+      id: string;
     };
     index: number;
     sectionId: string;
@@ -1084,7 +1085,11 @@ export default function BooksScreen() {
             borderColor: theme.secondary,
           },
         ]}
-        onPress={() => openBookReader(book)}
+        onPress={() => openBookReader({
+          id: book.id,
+          name: book.name,
+          language: currentLanguage.code
+        })}
       >
         <Text style={styles.bookIcon}>{book.icon}</Text>
         <Text

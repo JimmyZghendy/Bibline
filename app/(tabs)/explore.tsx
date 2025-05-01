@@ -9,6 +9,7 @@ import {
   StatusBar as RNStatusBar,
   Platform,
   TextInput,
+  Linking,
 } from "react-native";
 import {
   Search,
@@ -29,6 +30,7 @@ const exploreCategories = [
     id: "spiritual-growth",
     title: "Spiritual Enrichment",
     description: "Deepen your faith journey",
+    youtubeLink: "https://www.youtube.com/live/SqySjeAvuO4",
     items: [
       {
         name: "Daily Devotionals",
@@ -52,6 +54,7 @@ const exploreCategories = [
     id: "learning",
     title: "Biblical Learning",
     description: "Expand your biblical knowledge",
+    youtubeLink: "https://www.youtube.com/watch?v=f-wWBGo6a2w",
     items: [
       {
         name: "Bible Study Resources",
@@ -75,6 +78,7 @@ const exploreCategories = [
     id: "community",
     title: "Community Connections",
     description: "Connect with fellow believers",
+    youtubeLink: "https://www.youtube.com/watch?v=WlOiMX3-LHs",
     items: [
       {
         name: "Local Church Finder",
@@ -111,6 +115,11 @@ export default function ExploreScreen() {
     accent: "#f59e0b",
     searchBackground: isDarkMode ? "#2c2c2c" : "#f1f5f9",
     border: isDarkMode ? "#333333" : "#e2e8f0",
+  };
+
+  // Function to open YouTube links
+  const handleCategoryPress = (youtubeLink: string) => {
+    Linking.openURL(youtubeLink);
   };
 
   // Filter categories based on search query
@@ -165,7 +174,7 @@ export default function ExploreScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         {filteredCategories.map((category) => (
-          <View
+          <TouchableOpacity
             key={category.id}
             style={[
               styles.categoryContainer,
@@ -174,13 +183,22 @@ export default function ExploreScreen() {
                 borderColor: theme.border,
               },
             ]}
+            onPress={() => handleCategoryPress(category.youtubeLink)}
+            activeOpacity={0.7}
           >
-            <Text style={[styles.categoryTitle, { color: theme.text }]}>
-              {category.title}
-            </Text>
-            <Text style={[styles.categoryDescription, { color: theme.text }]}>
-              {category.description}
-            </Text>
+            <View style={styles.categoryHeaderContainer}>
+              <View style={styles.categoryTextContainer}>
+                <Text style={[styles.categoryTitle, { color: theme.text }]}>
+                  {category.title}
+                </Text>
+                <Text style={[styles.categoryDescription, { color: theme.text }]}>
+                  {category.description}
+                </Text>
+              </View>
+              <View style={styles.videoIconContainer}>
+                <Video stroke={theme.primary} width={24} height={24} />
+              </View>
+            </View>
 
             {category.items.map((item) => (
               <TouchableOpacity
@@ -208,7 +226,7 @@ export default function ExploreScreen() {
                 </View>
               </TouchableOpacity>
             ))}
-          </View>
+          </TouchableOpacity>
         ))}
 
         {/* No results message */}
@@ -259,6 +277,20 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
   },
+  categoryHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  categoryTextContainer: {
+    flex: 1,
+  },
+  videoIconContainer: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+  },
   categoryTitle: {
     fontSize: 20,
     fontWeight: "bold",
@@ -266,7 +298,6 @@ const styles = StyleSheet.create({
   },
   categoryDescription: {
     fontSize: 16,
-    marginBottom: 15,
   },
   itemContainer: {
     flexDirection: "row",
