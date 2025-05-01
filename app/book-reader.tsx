@@ -8,18 +8,15 @@ export default function BookReader() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          title: params.bookId
-            ? (params.bookId as string).charAt(0).toUpperCase() +
-              (params.bookId as string).slice(1)
-            : "Book Reader",
-        }}
-      />
+<Stack.Screen
+  options={{
+    headerShown: true,
+    title: params.language === "ar" ? "عودة" :
+          params.language === "fr" ? "Retour" : "Back"}}
+/>
       <BookReaderScreen
         bookId={params.bookId as string}
-        icon={params.icon as string}
+        language={params.language as string}
       />
     </>
   );
