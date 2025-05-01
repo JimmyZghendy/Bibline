@@ -11,6 +11,7 @@ import {
   Dimensions,
   StatusBar as RNStatusBar,
   Platform,
+  I18nManager,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { ChevronLeft, Search, Filter, Book } from "react-native-feather";
@@ -19,26 +20,69 @@ import { ChevronLeft, Search, Filter, Book } from "react-native-feather";
 import { useAppContext } from "@/contexts/AppContext";
 
 // Import dummy Bible data
-import { getBookById, BibleBook, Chapter, Verse } from "@/data/bibleDummyData";
+import { getBookById, BibleBook, Chapter, Verse } from "@/data/BibleManager";
 
 export default function BookReaderScreen({
   bookId = "genesis",
-  icon = "📖",
+  language = "ar"
 }: {
   bookId?: string;
-  icon?: string;
+  language?: string;
 }) {
   const { isDarkMode } = useAppContext();
 
   // Get book data
-  const bookData = getBookById(bookId);
+  const bookData = getBookById(language, bookId);
 
-  console.log("BookReaderScreen - Input:", { bookId, icon });
-  console.log("BookReaderScreen - Book Data:", bookData);
+  // console.log("BookReaderScreen - Input:", { bookId });
+  // console.log("BookReaderScreen - Book Data:", bookData);
 
   const [currentChapter, setCurrentChapter] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [showChapterFilter, setShowChapterFilter] = useState(false);
+
+  // Determine if the language is RTL (Arabic)
+  const isRTL = language === "ar";
+
+  // Text localization based on language
+  const localization = {
+    ar: {
+      search: "ابحث في هذا الفصل...",
+      selectChapter: "اختر الفصل",
+      chapter: "فصل",
+      previous: "السابق",
+      next: "التالي",
+      noResults: "لا توجد آيات تطابق",
+      bookNotFound: "الكتاب غير موجود"
+    },
+    en: {
+      search: "Search in this chapter...",
+      selectChapter: "Select Chapter",
+      chapter: "Chapter",
+      previous: "Previous",
+      next: "Next",
+      noResults: "No verses found matching",
+      bookNotFound: "Book not found"
+    }
+  };
+
+  // Get localized text
+  const getText = (key) => {
+    return (localization[language] || localization.en)[key];
+  };
+
+  const convertToArabicNumerals = (num) => {
+    if (!isRTL) return num.toString();
+    
+    const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    return num.toString().split('').map(digit => 
+      !isNaN(parseInt(digit)) ? arabicNumerals[parseInt(digit)] : digit
+    ).join('');
+  };
+
+  const formatNumber = (num) => {
+    return isRTL ? convertToArabicNumerals(num) : num.toString();
+  };
 
   // Theme colors
   const theme = {
@@ -58,7 +102,7 @@ export default function BookReaderScreen({
         style={[styles.container, { backgroundColor: theme.background }]}
       >
         <Text style={[styles.noResultsText, { color: theme.text }]}>
-          Book not found
+          {getText("bookNotFound")}
         </Text>
       </SafeAreaView>
     );
@@ -99,8 +143,18 @@ export default function BookReaderScreen({
       ]}
     >
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Search stroke={theme.text} style={styles.searchIcon} opacity={0.7} />
+      <View style={[
+        styles.searchContainer, 
+        isRTL ? { flexDirection: 'row-reverse' } : {}
+      ]}>
+        <Search 
+          stroke={theme.text} 
+          style={[
+            styles.searchIcon, 
+            isRTL ? styles.searchIconRTL : styles.searchIconLTR
+          ]} 
+          opacity={0.7} 
+        />
         <TextInput
           style={[
             styles.searchInput,
@@ -109,11 +163,13 @@ export default function BookReaderScreen({
               color: theme.text,
               borderColor: theme.secondary,
             },
+            isRTL ? { paddingRight: 40, paddingLeft: 15, textAlign: 'right' } : { paddingLeft: 40, paddingRight: 15 }
           ]}
-          placeholder="Search in this chapter..."
+          placeholder={getText("search")}
           placeholderTextColor={theme.text}
           value={searchQuery}
           onChangeText={setSearchQuery}
+          textAlign={isRTL ? 'right' : 'left'}
         />
       </View>
 
@@ -125,8 +181,12 @@ export default function BookReaderScreen({
             { backgroundColor: theme.card },
           ]}
         >
-          <Text style={[styles.filterTitle, { color: theme.text }]}>
-            Select Chapter
+          <Text style={[
+            styles.filterTitle, 
+            { color: theme.text },
+            isRTL ? { textAlign: 'right', alignSelf: 'stretch' } : {}
+          ]}>
+            {getText("selectChapter")}
           </Text>
           <View style={styles.chapterGrid}>
             {chapterNumbers.map((num) => (
@@ -149,7 +209,7 @@ export default function BookReaderScreen({
                     },
                   ]}
                 >
-                  {num}
+                  {formatNumber(num)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -159,8 +219,17 @@ export default function BookReaderScreen({
 
       {/* Chapter Title */}
       <View style={styles.chapterTitleContainer}>
-        <Text style={[styles.chapterTitle, { color: theme.text }]}>
-          {bookData.name} Chapter {currentChapter}
+        <Text 
+          style={[
+            styles.chapterTitle, 
+            { color: theme.text },
+          ]}
+        >
+          {isRTL ? (
+            `${bookData.name} ${getText("chapter")} ${formatNumber(currentChapter)}`
+          ) : (
+            `${bookData.name} ${getText("chapter")} ${currentChapter}`
+          )}
         </Text>
       </View>
 
@@ -168,11 +237,29 @@ export default function BookReaderScreen({
       <ScrollView style={styles.contentContainer}>
         {filteredVerses.length > 0 ? (
           filteredVerses.map((verse) => (
-            <View key={verse.number} style={styles.verseContainer}>
-              <Text style={[styles.verseNumber, { color: theme.primary }]}>
-                {verse.number}
+            <View 
+              key={verse.number} 
+              style={[
+                styles.verseContainer,
+                isRTL ? styles.verseContainerRTL : styles.verseContainerLTR
+              ]}
+            >
+              <Text 
+                style={[
+                  styles.verseNumber, 
+                  { color: theme.primary },
+                  isRTL ? styles.verseNumberRTL : {}
+                ]}
+              >
+                {formatNumber(verse.number)}
               </Text>
-              <Text style={[styles.verseText, { color: theme.text }]}>
+              <Text 
+                style={[
+                  styles.verseText, 
+                  { color: theme.text },
+                  isRTL ? { textAlign: 'right' } : {}
+                ]}
+              >
                 {verse.text}
               </Text>
             </View>
@@ -180,7 +267,7 @@ export default function BookReaderScreen({
         ) : (
           <View style={styles.noResultsContainer}>
             <Text style={[styles.noResultsText, { color: theme.text }]}>
-              No verses found matching "{searchQuery}"
+              {`${getText("noResults")} "${searchQuery}"`}
             </Text>
           </View>
         )}
@@ -188,7 +275,11 @@ export default function BookReaderScreen({
 
       {/* Navigation Buttons */}
       <View
-        style={[styles.navigationContainer, { backgroundColor: theme.card }]}
+        style={[
+          styles.navigationContainer, 
+          { backgroundColor: theme.card },
+          isRTL ? { flexDirection: "row-reverse" } : {}
+        ]}
       >
         <TouchableOpacity
           style={[
@@ -208,7 +299,7 @@ export default function BookReaderScreen({
               { color: currentChapter > 1 ? "#ffffff" : theme.text },
             ]}
           >
-            Previous
+            {getText("previous")}
           </Text>
         </TouchableOpacity>
 
@@ -219,7 +310,7 @@ export default function BookReaderScreen({
           ]}
         >
           <Text style={[styles.chapterIndicatorText, { color: theme.text }]}>
-            {currentChapter} / {bookData.chapters.length}
+            {formatNumber(currentChapter)} / {formatNumber(bookData.chapters.length)}
           </Text>
         </View>
 
@@ -251,7 +342,7 @@ export default function BookReaderScreen({
               },
             ]}
           >
-            Next
+            {getText("next")}
           </Text>
         </TouchableOpacity>
       </View>
@@ -296,13 +387,16 @@ const styles = StyleSheet.create({
   },
   searchIcon: {
     position: "absolute",
-    left: 25,
     zIndex: 1,
+  },
+  searchIconLTR: {
+    left: 25,
+  },
+  searchIconRTL: {
+    right: 25,
   },
   searchInput: {
     flex: 1,
-    paddingLeft: 40,
-    paddingRight: 15,
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
@@ -336,24 +430,35 @@ const styles = StyleSheet.create({
   chapterTitleContainer: {
     alignItems: "center",
     padding: 15,
+    width: "100%",
   },
   chapterTitle: {
     fontSize: 22,
     fontWeight: "bold",
+    width: "100%",
+    textAlign: "center",
   },
   contentContainer: {
     flex: 1,
     padding: 15,
   },
   verseContainer: {
-    flexDirection: "row",
     marginBottom: 15,
+  },
+  verseContainerLTR: {
+    flexDirection: "row",
+  },
+  verseContainerRTL: {
+    flexDirection: "row-reverse",
   },
   verseNumber: {
     fontWeight: "bold",
     fontSize: 16,
-    marginRight: 10,
     minWidth: 25,
+  },
+  verseNumberRTL: {
+    marginRight: 0,
+    marginLeft: 10,
   },
   verseText: {
     flex: 1,
