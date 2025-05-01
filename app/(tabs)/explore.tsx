@@ -23,82 +23,252 @@ import {
 
 // Import the AppContext
 import { useAppContext } from "@/contexts/AppContext";
+import { LanguageCode } from "@/utils/types";
 
-// Static data for explore screen with more comprehensive sections
-const exploreCategories = [
-  {
-    id: "spiritual-growth",
-    title: "Spiritual Enrichment",
-    description: "Deepen your faith journey",
-    youtubeLink: "https://www.youtube.com/live/SqySjeAvuO4",
-    items: [
-      {
-        name: "Daily Devotionals",
-        icon: (color: string) => <Heart stroke={color} />,
-        description: "Inspirational daily readings",
-        iconColor: "#dc2626",
-        lightColor: "#FFF5F5",
-        darkColor: "#2C1F1F",
-      },
-      {
-        name: "Prayer Guides",
-        icon: (color: string) => <BookOpen stroke={color} />,
-        description: "Structured prayer techniques",
-        iconColor: "#10b981",
-        lightColor: "#F0FDF4",
-        darkColor: "#1F2C25",
-      },
-    ],
+// Static data for explore screen with translations
+const exploreCategories = {
+  en: [
+    {
+      id: "spiritual-growth",
+      title: "Spiritual Enrichment",
+      description: "Deepen your faith journey",
+      youtubeLink: "https://www.youtube.com/live/SqySjeAvuO4",
+      items: [
+        {
+          name: "Daily Devotionals",
+          icon: (color: string) => <Heart stroke={color} />,
+          description: "Inspirational daily readings",
+          iconColor: "#dc2626",
+          lightColor: "#FFF5F5",
+          darkColor: "#2C1F1F",
+        },
+        {
+          name: "Prayer Guides",
+          icon: (color: string) => <BookOpen stroke={color} />,
+          description: "Structured prayer techniques",
+          iconColor: "#10b981",
+          lightColor: "#F0FDF4",
+          darkColor: "#1F2C25",
+        },
+      ],
+    },
+    {
+      id: "learning",
+      title: "Biblical Learning",
+      description: "Expand your biblical knowledge",
+      youtubeLink: "https://www.youtube.com/watch?v=f-wWBGo6a2w",
+      items: [
+        {
+          name: "Bible Study Resources",
+          icon: (color: string) => <Video stroke={color} />,
+          description: "In-depth theological insights",
+          iconColor: "#8b5cf6",
+          lightColor: "#EFF6FF",
+          darkColor: "#1F2C3C",
+        },
+        {
+          name: "Online Courses",
+          icon: (color: string) => <Radio stroke={color} />,
+          description: "Structured biblical education",
+          iconColor: "#f59e0b",
+          lightColor: "#F5F3FF",
+          darkColor: "#2C2C1F",
+        },
+      ],
+    },
+    {
+      id: "community",
+      title: "Community Connections",
+      description: "Connect with fellow believers",
+      youtubeLink: "https://www.youtube.com/watch?v=WlOiMX3-LHs",
+      items: [
+        {
+          name: "Local Church Finder",
+          icon: (color: string) => <Users stroke={color} />,
+          description: "Discover nearby worship communities",
+          iconColor: "#f59e0b",
+          lightColor: "#FFFBEB",
+          darkColor: "#2C2C1F",
+        },
+        {
+          name: "Global Missions",
+          icon: (color: string) => <Compass stroke={color} />,
+          description: "Explore missionary opportunities",
+          iconColor: "#22c55e",
+          lightColor: "#F0FDF4",
+          darkColor: "#1F2C25",
+        },
+      ],
+    },
+  ],
+  ar: [
+    {
+      id: "spiritual-growth",
+      title: "الإثراء الروحي",
+      description: "تعميق رحلة إيمانك",
+      youtubeLink: "https://www.youtube.com/live/SqySjeAvuO4",
+      items: [
+        {
+          name: "التأملات اليومية",
+          icon: (color: string) => <Heart stroke={color} />,
+          description: "قراءات يومية ملهمة",
+          iconColor: "#dc2626",
+          lightColor: "#FFF5F5",
+          darkColor: "#2C1F1F",
+        },
+        {
+          name: "دليل الصلاة",
+          icon: (color: string) => <BookOpen stroke={color} />,
+          description: "تقنيات صلاة منظمة",
+          iconColor: "#10b981",
+          lightColor: "#F0FDF4",
+          darkColor: "#1F2C25",
+        },
+      ],
+    },
+    {
+      id: "learning",
+      title: "التعلم الكتابي",
+      description: "توسيع معرفتك الكتابية",
+      youtubeLink: "https://www.youtube.com/watch?v=f-wWBGo6a2w",
+      items: [
+        {
+          name: "موارد دراسة الكتاب المقدس",
+          icon: (color: string) => <Video stroke={color} />,
+          description: "رؤى لاهوتية متعمقة",
+          iconColor: "#8b5cf6",
+          lightColor: "#EFF6FF",
+          darkColor: "#1F2C3C",
+        },
+        {
+          name: "دورات عبر الإنترنت",
+          icon: (color: string) => <Radio stroke={color} />,
+          description: "تعليم كتابي منظم",
+          iconColor: "#f59e0b",
+          lightColor: "#F5F3FF",
+          darkColor: "#2C2C1F",
+        },
+      ],
+    },
+    {
+      id: "community",
+      title: "روابط المجتمع",
+      description: "تواصل مع المؤمنين الآخرين",
+      youtubeLink: "https://www.youtube.com/watch?v=WlOiMX3-LHs",
+      items: [
+        {
+          name: "باحث الكنيسة المحلية",
+          icon: (color: string) => <Users stroke={color} />,
+          description: "اكتشف مجتمعات العبادة القريبة",
+          iconColor: "#f59e0b",
+          lightColor: "#FFFBEB",
+          darkColor: "#2C2C1F",
+        },
+        {
+          name: "البعثات العالمية",
+          icon: (color: string) => <Compass stroke={color} />,
+          description: "استكشاف فرص التبشير",
+          iconColor: "#22c55e",
+          lightColor: "#F0FDF4",
+          darkColor: "#1F2C25",
+        },
+      ],
+    },
+  ],
+  fr: [
+    {
+      id: "spiritual-growth",
+      title: "Enrichissement Spirituel",
+      description: "Approfondissez votre voyage de foi",
+      youtubeLink: "https://www.youtube.com/live/SqySjeAvuO4",
+      items: [
+        {
+          name: "Dévotions Quotidiennes",
+          icon: (color: string) => <Heart stroke={color} />,
+          description: "Lectures quotidiennes inspirantes",
+          iconColor: "#dc2626",
+          lightColor: "#FFF5F5",
+          darkColor: "#2C1F1F",
+        },
+        {
+          name: "Guides de Prière",
+          icon: (color: string) => <BookOpen stroke={color} />,
+          description: "Techniques de prière structurées",
+          iconColor: "#10b981",
+          lightColor: "#F0FDF4",
+          darkColor: "#1F2C25",
+        },
+      ],
+    },
+    {
+      id: "learning",
+      title: "Apprentissage Biblique",
+      description: "Élargissez vos connaissances bibliques",
+      youtubeLink: "https://www.youtube.com/watch?v=f-wWBGo6a2w",
+      items: [
+        {
+          name: "Ressources d'Étude Biblique",
+          icon: (color: string) => <Video stroke={color} />,
+          description: "Perspectives théologiques approfondies",
+          iconColor: "#8b5cf6",
+          lightColor: "#EFF6FF",
+          darkColor: "#1F2C3C",
+        },
+        {
+          name: "Cours en Ligne",
+          icon: (color: string) => <Radio stroke={color} />,
+          description: "Éducation biblique structurée",
+          iconColor: "#f59e0b",
+          lightColor: "#F5F3FF",
+          darkColor: "#2C2C1F",
+        },
+      ],
+    },
+    {
+      id: "community",
+      title: "Connexions Communautaires",
+      description: "Connectez-vous avec d'autres croyants",
+      youtubeLink: "https://www.youtube.com/watch?v=WlOiMX3-LHs",
+      items: [
+        {
+          name: "Recherche d'Églises Locales",
+          icon: (color: string) => <Users stroke={color} />,
+          description: "Découvrez les communautés de culte à proximité",
+          iconColor: "#f59e0b",
+          lightColor: "#FFFBEB",
+          darkColor: "#2C2C1F",
+        },
+        {
+          name: "Missions Globales",
+          icon: (color: string) => <Compass stroke={color} />,
+          description: "Explorez les opportunités missionnaires",
+          iconColor: "#22c55e",
+          lightColor: "#F0FDF4",
+          darkColor: "#1F2C25",
+        },
+      ],
+    },
+  ],
+};
+
+// UI translation strings
+const translations = {
+  en: {
+    searchPlaceholder: "Search resources...",
+    noResultsTitle: "No resources found",
+    noResultsSubtext: "Try a different search term",
   },
-  {
-    id: "learning",
-    title: "Biblical Learning",
-    description: "Expand your biblical knowledge",
-    youtubeLink: "https://www.youtube.com/watch?v=f-wWBGo6a2w",
-    items: [
-      {
-        name: "Bible Study Resources",
-        icon: (color: string) => <Video stroke={color} />,
-        description: "In-depth theological insights",
-        iconColor: "#8b5cf6",
-        lightColor: "#EFF6FF",
-        darkColor: "#1F2C3C",
-      },
-      {
-        name: "Online Courses",
-        icon: (color: string) => <Radio stroke={color} />,
-        description: "Structured biblical education",
-        iconColor: "#f59e0b",
-        lightColor: "#F5F3FF",
-        darkColor: "#2C2C1F",
-      },
-    ],
+  ar: {
+    searchPlaceholder: "البحث عن الموارد...",
+    noResultsTitle: "لم يتم العثور على موارد",
+    noResultsSubtext: "جرب مصطلح بحث مختلف",
   },
-  {
-    id: "community",
-    title: "Community Connections",
-    description: "Connect with fellow believers",
-    youtubeLink: "https://www.youtube.com/watch?v=WlOiMX3-LHs",
-    items: [
-      {
-        name: "Local Church Finder",
-        icon: (color: string) => <Users stroke={color} />,
-        description: "Discover nearby worship communities",
-        iconColor: "#f59e0b",
-        lightColor: "#FFFBEB",
-        darkColor: "#2C2C1F",
-      },
-      {
-        name: "Global Missions",
-        icon: (color: string) => <Compass stroke={color} />,
-        description: "Explore missionary opportunities",
-        iconColor: "#22c55e",
-        lightColor: "#F0FDF4",
-        darkColor: "#1F2C25",
-      },
-    ],
+  fr: {
+    searchPlaceholder: "Rechercher des ressources...",
+    noResultsTitle: "Aucune ressource trouvée",
+    noResultsSubtext: "Essayez un terme de recherche différent",
   },
-];
+};
 
 export default function ExploreScreen() {
   // Use the AppContext
@@ -117,13 +287,17 @@ export default function ExploreScreen() {
     border: isDarkMode ? "#333333" : "#e2e8f0",
   };
 
+  // Get translated content based on current language
+  const categories = exploreCategories[currentLanguage.code as LanguageCode];
+  const t = translations[currentLanguage.code as LanguageCode];
+
   // Function to open YouTube links
   const handleCategoryPress = (youtubeLink: string) => {
     Linking.openURL(youtubeLink);
   };
 
   // Filter categories based on search query
-  const filteredCategories = exploreCategories
+  const filteredCategories = categories
     .map((category) => ({
       ...category,
       items: category.items.filter(
@@ -162,7 +336,7 @@ export default function ExploreScreen() {
               borderColor: theme.border,
             },
           ]}
-          placeholder="Search resources..."
+          placeholder={t.searchPlaceholder}
           placeholderTextColor={theme.text}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -233,10 +407,10 @@ export default function ExploreScreen() {
         {filteredCategories.length === 0 && (
           <View style={styles.noResultsContainer}>
             <Text style={[styles.noResultsText, { color: theme.text }]}>
-              No resources found
+              {t.noResultsTitle}
             </Text>
             <Text style={[styles.noResultsSubtext, { color: theme.text }]}>
-              Try a different search term
+              {t.noResultsSubtext}
             </Text>
           </View>
         )}
