@@ -59,6 +59,18 @@ export default function BookReaderScreen({
       filterChapter: "Filter chapter",
       clear: "Clear",
       close: "Close"
+    },
+    fr: {
+      search: "Rechercher un mot, un verse, entre : 2-14",
+      selectChapter: "Sélectionner un chapitre",
+      chapter: "Chapitre",
+      previous: "Précédent",
+      next: "Suivant",
+      noResults: "Aucun verset trouvé correspondant",
+      bookNotFound: "Livre non trouvé",
+      filterChapter: "Filtrer le chapitre",
+      clear: "Effacer",
+      close: "Fermer"
     }
   };
 
