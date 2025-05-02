@@ -15,11 +15,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { ChevronLeft, Search, Filter, Book, X } from "react-native-feather";
-
-// Import the AppContext
 import { useAppContext } from "@/contexts/AppContext";
-
-// Import dummy Bible data
 import { getBookById, BibleBook, Chapter, Verse } from "@/data/BibleManager";
 
 export default function BookReaderScreen({
@@ -30,26 +26,18 @@ export default function BookReaderScreen({
   language?: string;
 }) {
   const { isDarkMode } = useAppContext();
-
-  // Get book data
   const bookData = getBookById(language, bookId);
 
   const [currentChapter, setCurrentChapter] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [showChapterFilter, setShowChapterFilter] = useState(false);
   const [chapterFilterQuery, setChapterFilterQuery] = useState("");
-  const [searchType, setSearchType] = useState<"all" | "text" | "verse">("all");
 
-  // Determine if the language is RTL (Arabic)
   const isRTL = language === "ar";
 
-  // Text localization based on language
   const localization = {
     ar: {
-      search: "ابحث في هذا الفصل...",
-      searchText: "ابحث في النص",
-      searchVerse: "ابحث في رقم الآية",
-      searchAll: "الكل",
+      search: "ابحث عن كلمة، فصل، النطاق: 2-14",
       selectChapter: "اختر الفصل",
       chapter: "فصل",
       previous: "السابق",
@@ -61,10 +49,7 @@ export default function BookReaderScreen({
       close: "إغلاق"
     },
     en: {
-      search: "Search in this chapter...",
-      searchText: "Search text",
-      searchVerse: "Search verse #",
-      searchAll: "All",
+      search: "Search a word, verse, range: 2-14",
       selectChapter: "Select Chapter",
       chapter: "Chapter",
       previous: "Previous",
@@ -77,7 +62,6 @@ export default function BookReaderScreen({
     }
   };
 
-  // Get localized text
   const getText = (key: keyof typeof localization.en) => {
     return (localization[language as 'ar' | 'en'] || localization.en)[key];
   };
@@ -95,25 +79,19 @@ export default function BookReaderScreen({
     return isRTL ? convertToArabicNumerals(num) : num.toString();
   };
 
-  // Theme colors
   const theme = {
     background: isDarkMode ? "#121212" : "#ffffff",
     text: isDarkMode ? "#ffffff" : "#121212",
     card: isDarkMode ? "#1e1e1e" : "#f5f5f5",
-    primary: "#dc2626", // Tailwind red-600
+    primary: "#dc2626",
     secondary: isDarkMode ? "#333333" : "#e2e8f0",
     accent: "#f59e0b",
     searchBackground: isDarkMode ? "#2c2c2c" : "#f1f5f9",
-    filterPill: isDarkMode ? "#3a3a3a" : "#e5e7eb",
-    filterPillActive: "#dc2626",
   };
 
-  // If no book found, return error view
   if (!bookData) {
     return (
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: theme.background }]}
-      >
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
         <Text style={[styles.noResultsText, { color: theme.text }]}>
           {getText("bookNotFound")}
         </Text>
@@ -121,30 +99,38 @@ export default function BookReaderScreen({
     );
   }
 
-  // Get current chapter content
   const currentChapterContent = bookData.chapters.find(
     (chapter) => chapter.number === currentChapter
   );
 
-  // Filter verses by search query and type
   const filteredVerses = useMemo(() => {
-    if (!searchQuery || !currentChapterContent)
-      return currentChapterContent?.verses || [];
-      
-    return currentChapterContent.verses.filter((verse) => {
-      if (searchType === "text") {
-        return verse.text.toLowerCase().includes(searchQuery.toLowerCase());
-      } else if (searchType === "verse") {
-        return verse.number.toString() === searchQuery;
-      } else {
-        // searchType === "all"
-        return verse.text.toLowerCase().includes(searchQuery.toLowerCase()) || 
-               verse.number.toString() === searchQuery;
+    if (!searchQuery || !currentChapterContent) return currentChapterContent?.verses || [];
+    
+    // Check if the query is a verse number (e.g., "5")
+    if (/^\d+$/.test(searchQuery)) {
+      return currentChapterContent.verses.filter(
+        (verse) => verse.number.toString() === searchQuery
+      );
+    }
+    
+    // Check if the query is a verse range (e.g., "5-7")
+    const rangeMatch = searchQuery.match(/^(\d+)-(\d+)$/);
+    if (rangeMatch) {
+      const start = parseInt(rangeMatch[1]);
+      const end = parseInt(rangeMatch[2]);
+      if (start <= end) {
+        return currentChapterContent.verses.filter(
+          (verse) => verse.number >= start && verse.number <= end
+        );
       }
-    });
-  }, [currentChapterContent?.verses, searchQuery, searchType]);
+    }
+    
+    // Default to text search
+    return currentChapterContent.verses.filter((verse) =>
+      verse.text.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [currentChapterContent?.verses, searchQuery]);
 
-  // Navigate to chapter
   const goToChapter = (chapterNum: number) => {
     if (chapterNum >= 1 && chapterNum <= bookData.chapters.length) {
       setCurrentChapter(chapterNum);
@@ -153,46 +139,29 @@ export default function BookReaderScreen({
     }
   };
 
-  // Filter chapters by search query
   const filteredChapters = useMemo(() => {
     if (!chapterFilterQuery) return bookData.chapters;
-    
     const query = chapterFilterQuery.toLowerCase();
-    return bookData.chapters.filter((chapter) => {
-      return chapter.number.toString().includes(query);
-    });
+    return bookData.chapters.filter((chapter) =>
+      chapter.number.toString().includes(query)
+    );
   }, [bookData.chapters, chapterFilterQuery]);
 
-  // Clear search query
   const clearSearch = () => {
     setSearchQuery("");
   };
 
-  // Clear chapter filter query
   const clearChapterFilter = () => {
     setChapterFilterQuery("");
   };
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.background,
-        },
-      ]}
-    >
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Search Bar */}
-      <View style={[
-        styles.searchContainer, 
-        isRTL ? { flexDirection: 'row-reverse' } : {}
-      ]}>
+      <View style={[styles.searchContainer, isRTL ? { flexDirection: 'row-reverse' } : {}]}>
         <Search 
           stroke={theme.text} 
-          style={[
-            styles.searchIcon, 
-            isRTL ? styles.searchIconRTL : styles.searchIconLTR
-          ]} 
+          style={[styles.searchIcon, isRTL ? styles.searchIconRTL : styles.searchIconLTR]} 
           opacity={0.7} 
         />
         <TextInput
@@ -220,93 +189,12 @@ export default function BookReaderScreen({
           </TouchableOpacity>
         )}
       </View>
-      
-      {/* Search Type Selector */}
-      <View style={[
-        styles.searchTypeContainer,
-        isRTL ? { flexDirection: 'row-reverse' } : {}
-      ]}>
-        <TouchableOpacity
-          style={[
-            styles.searchTypeButton,
-            {
-              backgroundColor: searchType === "all" ? theme.filterPillActive : theme.filterPill,
-            },
-          ]}
-          onPress={() => setSearchType("all")}
-        >
-          <Text
-            style={[
-              styles.searchTypeText,
-              {
-                color: searchType === "all" ? "#ffffff" : theme.text,
-              },
-            ]}
-          >
-            {getText("searchAll")}
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[
-            styles.searchTypeButton,
-            {
-              backgroundColor: searchType === "text" ? theme.filterPillActive : theme.filterPill,
-            },
-          ]}
-          onPress={() => setSearchType("text")}
-        >
-          <Text
-            style={[
-              styles.searchTypeText,
-              {
-                color: searchType === "text" ? "#ffffff" : theme.text,
-              },
-            ]}
-          >
-            {getText("searchText")}
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[
-            styles.searchTypeButton,
-            {
-              backgroundColor: searchType === "verse" ? theme.filterPillActive : theme.filterPill,
-            },
-          ]}
-          onPress={() => setSearchType("verse")}
-        >
-          <Text
-            style={[
-              styles.searchTypeText,
-              {
-                color: searchType === "verse" ? "#ffffff" : theme.text,
-              },
-            ]}
-          >
-            {getText("searchVerse")}
-          </Text>
-        </TouchableOpacity>
-      </View>
 
       {/* Chapter Filter */}
       {showChapterFilter && (
-        <View
-          style={[
-            styles.chapterFilterContainer,
-            { backgroundColor: theme.card },
-          ]}
-        >
-          <View style={[
-            styles.chapterFilterHeader,
-            isRTL ? { flexDirection: 'row-reverse' } : {}
-          ]}>
-            <Text style={[
-              styles.filterTitle, 
-              { color: theme.text },
-              isRTL ? { textAlign: 'right' } : {}
-            ]}>
+        <View style={[styles.chapterFilterContainer, { backgroundColor: theme.card }]}>
+          <View style={[styles.chapterFilterHeader, isRTL ? { flexDirection: 'row-reverse' } : {}]}>
+            <Text style={[styles.filterTitle, { color: theme.text }, isRTL ? { textAlign: 'right' } : {}]}>
               {getText("selectChapter")}
             </Text>
             <TouchableOpacity
@@ -317,17 +205,10 @@ export default function BookReaderScreen({
             </TouchableOpacity>
           </View>
           
-          {/* Chapter Search Bar */}
-          <View style={[
-            styles.chapterSearchContainer,
-            isRTL ? { flexDirection: 'row-reverse' } : {}
-          ]}>
+          <View style={[styles.chapterSearchContainer, isRTL ? { flexDirection: 'row-reverse' } : {}]}>
             <Search 
               stroke={theme.text} 
-              style={[
-                styles.chapterSearchIcon, 
-                isRTL ? styles.searchIconRTL : styles.searchIconLTR
-              ]} 
+              style={[styles.chapterSearchIcon, isRTL ? styles.searchIconRTL : styles.searchIconLTR]} 
               width={16} 
               height={16} 
               opacity={0.7} 
@@ -390,12 +271,7 @@ export default function BookReaderScreen({
 
       {/* Chapter Title */}
       <View style={styles.chapterTitleContainer}>
-        <Text 
-          style={[
-            styles.chapterTitle, 
-            { color: theme.text },
-          ]}
-        >
+        <Text style={[styles.chapterTitle, { color: theme.text }]}>
           {isRTL ? (
             `${bookData.name} ${getText("chapter")} ${formatNumber(currentChapter)}`
           ) : (
@@ -410,10 +286,7 @@ export default function BookReaderScreen({
           filteredVerses.map((verse) => (
             <View 
               key={verse.number} 
-              style={[
-                styles.verseContainer,
-                isRTL ? styles.verseContainerRTL : styles.verseContainerLTR
-              ]}
+              style={[styles.verseContainer, isRTL ? styles.verseContainerRTL : styles.verseContainerLTR]}
             >
               <Text 
                 style={[
@@ -435,13 +308,13 @@ export default function BookReaderScreen({
               </Text>
             </View>
           ))
-        ) : (
+        ) : searchQuery ? (
           <View style={styles.noResultsContainer}>
             <Text style={[styles.noResultsText, { color: theme.text }]}>
               {`${getText("noResults")} "${searchQuery}"`}
             </Text>
           </View>
-        )}
+        ) : null}
       </ScrollView>
 
       {/* Navigation Buttons */}
@@ -577,25 +450,6 @@ const styles = StyleSheet.create({
   clearButton: {
     position: "absolute",
     zIndex: 1,
-  },
-  searchTypeContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 15,
-    paddingBottom: 10,
-    paddingTop: 5,
-    justifyContent: "space-between",
-  },
-  searchTypeButton: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: 5,
-    paddingVertical: 8,
-    borderRadius: 15,
-  },
-  searchTypeText: {
-    fontSize: 12,
-    fontWeight: "bold",
   },
   chapterFilterContainer: {
     padding: 15,
