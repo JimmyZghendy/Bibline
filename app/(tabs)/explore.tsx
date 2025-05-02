@@ -32,7 +32,7 @@ const exploreCategories = {
       id: "spiritual-growth",
       title: "Spiritual Enrichment",
       description: "Deepen your faith journey",
-      youtubeLink: "https://www.youtube.com/live/SqySjeAvuO4",
+      youtubeLink: "https://www.youtube.com/watch?v=gstHXedfA4Y",
       items: [
         {
           name: "Daily Devotionals",
@@ -56,7 +56,7 @@ const exploreCategories = {
       id: "learning",
       title: "Biblical Learning",
       description: "Expand your biblical knowledge",
-      youtubeLink: "https://www.youtube.com/watch?v=f-wWBGo6a2w",
+      youtubeLink: "https://www.youtube.com/playlist?list=PLH0Szn1yYNedn4FbBMMtOlGN-BPLQ54IH",
       items: [
         {
           name: "Bible Study Resources",
@@ -80,7 +80,7 @@ const exploreCategories = {
       id: "community",
       title: "Community Connections",
       description: "Connect with fellow believers",
-      youtubeLink: "https://www.youtube.com/watch?v=WlOiMX3-LHs",
+      youtubeLink: "https://www.youtube.com/watch?v=BO1Y9XyWKTw",
       items: [
         {
           name: "Local Church Finder",
@@ -106,7 +106,7 @@ const exploreCategories = {
       id: "spiritual-growth",
       title: "الإثراء الروحي",
       description: "تعميق رحلة إيمانك",
-      youtubeLink: "https://www.youtube.com/live/SqySjeAvuO4",
+      youtubeLink: "https://www.youtube.com/c/bibleprojectstandardarabic",
       items: [
         {
           name: "التأملات اليومية",
@@ -130,7 +130,7 @@ const exploreCategories = {
       id: "learning",
       title: "التعلم الكتابي",
       description: "توسيع معرفتك الكتابية",
-      youtubeLink: "https://www.youtube.com/watch?v=f-wWBGo6a2w",
+      youtubeLink: "https://www.youtube.com/c/bibleprojectstandardarabic",
       items: [
         {
           name: "موارد دراسة الكتاب المقدس",
@@ -180,7 +180,7 @@ const exploreCategories = {
       id: "spiritual-growth",
       title: "Enrichissement Spirituel",
       description: "Approfondissez votre voyage de foi",
-      youtubeLink: "https://www.youtube.com/live/SqySjeAvuO4",
+      youtubeLink: "https://www.youtube.com/c/BibleProjectFran%C3%A7ais",
       items: [
         {
           name: "Dévotions Quotidiennes",
@@ -204,7 +204,7 @@ const exploreCategories = {
       id: "learning",
       title: "Apprentissage Biblique",
       description: "Élargissez vos connaissances bibliques",
-      youtubeLink: "https://www.youtube.com/watch?v=f-wWBGo6a2w",
+      youtubeLink: "https://www.youtube.com/c/BibleProjectFran%C3%A7ais",
       items: [
         {
           name: "Ressources d'Étude Biblique",
@@ -228,7 +228,7 @@ const exploreCategories = {
       id: "community",
       title: "Connexions Communautaires",
       description: "Connectez-vous avec d'autres croyants",
-      youtubeLink: "https://www.youtube.com/watch?v=WlOiMX3-LHs",
+      youtubeLink: "https://www.youtube.com/c/BibleProjectFran%C3%A7ais",
       items: [
         {
           name: "Recherche d'Églises Locales",
