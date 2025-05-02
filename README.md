@@ -1,7 +1,9 @@
 # 📖 Bibline
-## Bible Reader Online App 📖
+### Bible Reader Online App 📖
 
 This is a mobile application built with Expo, designed to provide a seamless and enriching Bible reading experience. Users can effortlessly navigate through the Old and New Testaments, filtering content by specific book, chapter, keyword, individual verses, or custom verse ranges (e.g., 5-16). The app offers multilingual support, currently featuring translations in Arabic (ar), English (en), and French (fr), catering to a diverse user base. Furthermore, users can personalize their reading environment with both light and dark mode options for optimal readability in any setting.
+
+---
 
 # Welcome to your Expo app 👋
 
@@ -47,3 +49,11 @@ This project is open-source and free to use.
 ---
 
 📩 For any issues, feel free to open an issue on GitHub!
+
+---
+
+🔗 [GitHub Profile]
+(https://github.com/Micho-github)
+(https://github.com/JimmyZghendy)
+
+---
