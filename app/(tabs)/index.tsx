@@ -279,7 +279,7 @@ export default function MainScreen() {
           </View>
         </View>
 
-        {/* Bible Collections Section */}
+        {/* Bible Collections Section
         <View style={styles.sectionContainer}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
             {t.bibleCollections}
@@ -332,7 +332,7 @@ export default function MainScreen() {
               </View>
             ))}
           </ScrollView>
-        </View>
+        </View> */}
 
         {/* Bible Benefits Section - Replacing Bible Study Resources */}
         <View style={styles.textSectionContainer}>
@@ -343,22 +343,6 @@ export default function MainScreen() {
             <Text style={[styles.textCardContent, { color: theme.text }]}>
               {t.bibleBenefitsText}
             </Text>
-          </View>
-        </View>
-
-        {/* Community Image Section - Replacing Interactive Community Section */}
-        <View style={styles.sectionContainer}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            {t.communityLearning}
-          </Text>
-          <View
-            style={[styles.communityImageContainer, { backgroundColor: theme.card }]}
-          >
-            <Image
-              source={require("@/assets/images/LandingPage/Saint_jean_marc.jpg")}
-              style={styles.communityImage}
-              resizeMode="cover"
-            />
           </View>
         </View>
       </ScrollView>

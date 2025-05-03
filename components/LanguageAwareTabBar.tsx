@@ -21,19 +21,16 @@ const tabTranslations = {
     const t = tabTranslations[currentLanguage.code] || tabTranslations.en;
   
     return (
-        <Tabs
+          <Tabs
           screenOptions={{
-            tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+            tabBarActiveTintColor: isDarkMode ? Colors.dark.tint : Colors.light.tint, // Change active tint color based on theme
             headerShown: false,
             tabBarButton: HapticTab,
             tabBarBackground: TabBarBackground,
-            tabBarStyle: Platform.select({
-              ios: {
-                // Use a transparent background on iOS to show the blur effect
-                position: "absolute",
-              },
-              default: {},
-            }),
+            tabBarStyle: {
+              backgroundColor: isDarkMode ? Colors.dark.background : Colors.light.background, // Change background color based on theme
+              position: Platform.OS === 'ios' ? 'absolute' : 'relative', // Adjust position based on platform
+            },
           }}
         >
           <Tabs.Screen
