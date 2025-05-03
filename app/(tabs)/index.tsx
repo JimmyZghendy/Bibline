@@ -279,7 +279,7 @@ export default function MainScreen() {
           </View>
         </View>
 
-        {/* Bible Collections Section */}
+        {/* Bible Collections Section
         <View style={styles.sectionContainer}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
             {t.bibleCollections}
@@ -332,7 +332,7 @@ export default function MainScreen() {
               </View>
             ))}
           </ScrollView>
-        </View>
+        </View> */}
 
         {/* Bible Benefits Section - Replacing Bible Study Resources */}
         <View style={styles.textSectionContainer}>

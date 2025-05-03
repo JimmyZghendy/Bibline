@@ -325,21 +325,37 @@ export default function ExploreScreen() {
       />
 
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Search stroke={theme.text} style={styles.searchIcon} opacity={0.7} />
-        <TextInput
+      <View
+        style={[
+          styles.searchContainer,
+          currentLanguage.code === "ar" && { flexDirection: "row-reverse" },
+        ]}
+      >
+        <Search
+          stroke={theme.text}
+          style={[
+            styles.searchIcon,
+            currentLanguage.code === "ar" ? { right: 30, left: "auto" } : {},
+          ]}
+          opacity={0.7}
+        />
+                <TextInput
           style={[
             styles.searchInput,
             {
               backgroundColor: theme.searchBackground,
               color: theme.text,
-              borderColor: theme.border,
+              borderColor: theme.secondary,
+              textAlign: currentLanguage.code === "ar" ? "right" : "left",
+              paddingLeft: currentLanguage.code === "ar" ? 15 : 40,
+              paddingRight: currentLanguage.code === "ar" ? 40 : 15,
             },
           ]}
           placeholder={t.searchPlaceholder}
           placeholderTextColor={theme.text}
           value={searchQuery}
           onChangeText={setSearchQuery}
+          textAlign={currentLanguage.code === "ar" ? "right" : "left"}
         />
       </View>
 
