@@ -1,7 +1,6 @@
 import React from "react";
-import { Platform, View } from "react-native";
+import { View } from "react-native";
 
-// Import the new context provider and NavbarWithSidebar
 import { AppContextProvider } from "@/contexts/AppContext";
 import { NavbarWithSidebar } from "@/components/NavbarWithSidebar";
 import { LanguageAwareTabs } from "@/components/LanguageAwareTabBar";
@@ -11,7 +10,7 @@ export default function TabLayout() {
     <AppContextProvider>
       <View style={{ flex: 1 }}>
         <NavbarWithSidebar />
-    <LanguageAwareTabs/>
+        <LanguageAwareTabs/>
       </View>
     </AppContextProvider>
   );

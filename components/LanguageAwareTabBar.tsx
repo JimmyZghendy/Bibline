@@ -23,13 +23,13 @@ const tabTranslations = {
     return (
           <Tabs
           screenOptions={{
-            tabBarActiveTintColor: isDarkMode ? Colors.dark.tint : Colors.light.tint, // Change active tint color based on theme
+            tabBarActiveTintColor: isDarkMode ? Colors.dark.tint : Colors.light.tint,
             headerShown: false,
             tabBarButton: HapticTab,
             tabBarBackground: TabBarBackground,
             tabBarStyle: {
-              backgroundColor: isDarkMode ? Colors.dark.background : Colors.light.background, // Change background color based on theme
-              position: Platform.OS === 'ios' ? 'absolute' : 'relative', // Adjust position based on platform
+              backgroundColor: isDarkMode ? Colors.dark.background : Colors.light.background,
+              position: Platform.OS === 'ios' ? 'absolute' : 'relative',
             },
           }}
         >

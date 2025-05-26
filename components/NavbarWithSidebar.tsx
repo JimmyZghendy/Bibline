@@ -16,10 +16,8 @@ import {
 } from "react-native-safe-area-context";
 import { Globe, Moon, Sun, Menu, X, ChevronRight } from "react-native-feather";
 
-// Import the AppContext
 import { useAppContext, languages, Language } from "@/contexts/AppContext";
 
-// Translations type and object
 type Translations = {
   settings: string;
   language: string;
@@ -57,22 +55,18 @@ type NavbarWithSidebarProps = {
 };
 
 export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
-  // Use the AppContext
-  const { isDarkMode, currentLanguage, setIsDarkMode, setCurrentLanguage } =
-    useAppContext();
+  const { isDarkMode, currentLanguage, setIsDarkMode, setCurrentLanguage } = useAppContext();
 
-  // Get safe area insets
   const insets = useSafeAreaInsets();
 
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
-  // Theme colors
   const theme = {
     background: isDarkMode ? "#121212" : "#ffffff",
     text: isDarkMode ? "#ffffff" : "#121212",
     card: isDarkMode ? "#1e1e1e" : "#f5f5f5",
-    primary: "#dc2626", // Tailwind red-600
+    primary: "#dc2626",
     secondary: "#e2e8f0",
     accent: "#f59e0b",
   };
@@ -90,7 +84,6 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
 
   const screenWidth = Dimensions.get("window").width;
 
-  // Wrap content differently for web and mobile
   const NavbarWrapper = Platform.OS === "web" ? View : SafeAreaView;
   const navbarWrapperProps =
     Platform.OS === "web"
@@ -110,19 +103,14 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
           styles.header,
           {
             backgroundColor: theme.background,
-            flexDirection:
-              currentLanguage.code === "ar" ? "row-reverse" : "row",
             ...(Platform.OS === "web"
               ? {
                   height: 60,
                   paddingTop: 0,
                 }
               : {
-                  height: 60 + (RNStatusBar.currentHeight || 0),
-                  paddingTop:
-                    Platform.OS === "android"
-                      ? RNStatusBar.currentHeight || 0
-                      : 0,
+                  height: 60,
+                  paddingTop: 0,
                 }),
           },
         ]}
@@ -132,28 +120,25 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
           style={[
             styles.menuButton,
             {
+              position: "absolute",
+              left: currentLanguage.code === "ar" ? undefined : 16,
+              right: currentLanguage.code === "ar" ? 16 : undefined,
               zIndex: 10,
-              ...(currentLanguage.code === "ar" && {
-                position: "absolute",
-                right: 16,
-              }),
             },
           ]}
         >
           <Menu stroke={theme.text} />
         </TouchableOpacity>
-        <View style={styles.headerLogoContainer}>
+
+        <View style={[styles.headerLogoContainer, { zIndex: 5 }]}>
           <Image
             source={require("@/assets/images/bibline_logo.png")}
             style={styles.headerLogo}
             resizeMode="contain"
           />
         </View>
-        {/* Empty view to balance layout */}
-        <View style={{ width: 50 }} />
       </View>
 
-      {/* Side menu using Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -179,10 +164,7 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
               {
                 width: screenWidth * 0.8,
                 backgroundColor: theme.card,
-                paddingTop:
-                  Platform.OS === "android"
-                    ? (RNStatusBar.currentHeight || 0) + 20
-                    : 20,
+                paddingTop: insets.top + 20,
                 ...(currentLanguage.code === "ar" && {
                   left: "auto",
                   right: 0,
@@ -209,7 +191,6 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
               </TouchableOpacity>
             </View>
 
-            {/* Language selector */}
             <View style={styles.menuSection}>
               <Text
                 style={[
@@ -319,7 +300,6 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
               )}
             </View>
 
-            {/* Theme selector */}
             <View style={styles.menuSection}>
               <Text
                 style={[
@@ -410,17 +390,15 @@ export function NavbarWithSidebar({ title }: NavbarWithSidebarProps) {
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: "row",
+    height: 60,
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0,0,0,0.1)",
+    position: "relative",
   },
   headerLogoContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
     alignItems: "center",
     justifyContent: "center",
   },

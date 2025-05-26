@@ -190,7 +190,6 @@ export default function MainScreen() {
         styles.container,
         {
           backgroundColor: theme.background,
-          paddingTop: Platform.OS === "android" ? RNStatusBar.currentHeight : 0,
         },
       ]}
     >
