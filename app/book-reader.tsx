@@ -17,7 +17,7 @@ export default function BookReader() {
           headerStyle: {
             backgroundColor: isDarkMode ? '#121212' : '#ffffff',
           },
-          headerTintColor: isDarkMode ? '#ffffff' : '#121212',
+           headerTintColor: isDarkMode ? '#ffffff' : '#000000',
         }}
       />
       <BookReaderScreen
