@@ -1047,7 +1047,8 @@ export default function BooksScreen() {
       params: {
         bookId: book.id,
         bookName: book.name,
-        language: currentLanguage.code
+        language: currentLanguage.code,
+        isDarkMode: isDarkMode ? 'true' : 'false'
       }
     });
   };
