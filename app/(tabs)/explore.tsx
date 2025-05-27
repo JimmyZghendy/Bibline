@@ -314,7 +314,6 @@ export default function ExploreScreen() {
         styles.container,
         {
           backgroundColor: theme.background,
-          paddingTop: Platform.OS === "android" ? RNStatusBar.currentHeight : 0,
         },
       ]}
     >

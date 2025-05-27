@@ -20,12 +20,13 @@ import { getBookById, BibleBook, Chapter, Verse } from "@/data/BibleManager";
 
 export default function BookReaderScreen({
   bookId = "genesis",
-  language = "ar"
+  language = "ar",
+  isDarkMode = true
 }: {
   bookId?: string;
   language?: string;
+  isDarkMode?: boolean;
 }) {
-  const { isDarkMode } = useAppContext();
   const bookData = getBookById(language, bookId);
 
   const [currentChapter, setCurrentChapter] = useState(1);

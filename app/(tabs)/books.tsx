@@ -1047,7 +1047,8 @@ export default function BooksScreen() {
       params: {
         bookId: book.id,
         bookName: book.name,
-        language: currentLanguage.code
+        language: currentLanguage.code,
+        isDarkMode: isDarkMode ? 'true' : 'false'
       }
     });
   };
@@ -1123,7 +1124,6 @@ export default function BooksScreen() {
         styles.container,
         {
           backgroundColor: theme.background,
-          paddingTop: Platform.OS === "android" ? RNStatusBar.currentHeight : 0,
         },
       ]}
     >
@@ -1138,6 +1138,7 @@ export default function BooksScreen() {
         style={[
           styles.searchContainer,
           currentLanguage.code === "ar" && { flexDirection: "row-reverse" },
+          {marginBottom:20}
         ]}
       >
         <Search

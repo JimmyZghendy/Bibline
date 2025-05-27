@@ -9,16 +9,30 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Platform } from "react-native";
+import { AppContextProvider, useAppContext } from "@/contexts/AppContext";
 
-import { useColorScheme } from "@/hooks/useColorScheme";
-import BookReaderScreen from "@/components/BookReaderScreen";
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+function AppContent() {
+  const { isDarkMode } = useAppContext();
+
+  return (
+    <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      <StatusBar
+        style={isDarkMode ? "light" : "dark"}
+        translucent={false}
+      />
+    </ThemeProvider>
+  );
+}
+
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -27,7 +41,6 @@ export default function RootLayout() {
     if (loaded) {
       SplashScreen.hideAsync();
     }
-    
   }, [loaded]);
 
   if (!loaded) {
@@ -36,13 +49,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+      <AppContextProvider>
+        <AppContent />
+      </AppContextProvider>
     </SafeAreaProvider>
   );
 }
