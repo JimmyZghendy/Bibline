@@ -65,7 +65,7 @@ export const getBookById = (
 ): BibleBook | undefined => {
   const langData = bibleData[language];
   if (!langData) return undefined;
-  
+
   return [...langData.old_testament, ...langData.new_testament].find(
     book => book.id.toLowerCase() === id.toLowerCase()
   );

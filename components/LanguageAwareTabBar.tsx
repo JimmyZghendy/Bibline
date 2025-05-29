@@ -14,12 +14,12 @@ const tabTranslations = {
     fr: { home: "Accueil", books: "Livres", explore: "Explorer" },
     ar: { home: "الرئيسية", books: "الكتب", explore: "استكشف" }
   };
-  
+
   export const LanguageAwareTabs = () => {
     const colorScheme = useColorScheme();
     const { isDarkMode, currentLanguage } = useAppContext();
     const t = tabTranslations[currentLanguage.code] || tabTranslations.en;
-  
+
     return (
           <Tabs
           screenOptions={{
