@@ -15,6 +15,10 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 1. Install dependencies
 
+ ```bash
+   npm install -g expo-cli@6.3.10
+   ```
+
    ```bash
    npm install
    ```
